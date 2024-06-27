@@ -1,19 +1,62 @@
 package curl
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
+type Header map[string]string
+
+func (h Header) Get(key string) string {
+	return h[key]
+}
+func (h Header) Set(key, value string) {
+	h[key] = value
+}
+func (h Header) Del(key string) {
+	delete(h, key)
+}
+
+type Query map[string]string
+
+func (q Query) Get(key string) string {
+	return q[key]
+}
+func (q Query) Set(key, value string) {
+	q[key] = value
+}
+func (q Query) Del(key string) {
+	delete(q, key)
+}
+
+type Form map[string]string
+
+func (f Form) Get(key string) string {
+	return f[key]
+}
+func (f Form) Set(key, value string) {
+	f[key] = value
+}
+func (f Form) Del(key string) {
+	delete(f, key)
+}
+
+type Body string
+
+func (b Body) UnmarshalParse(obj interface{}) error {
+	return json.Unmarshal([]byte(b), obj)
+}
+
 type Curl struct {
 	Url    string
 	Method string
-	Header map[string]string
-	Query  map[string]string
-	From   map[string]string
-	Body   string
+	Header Header
+	Query  Query
+	From   Form
+	Body   Body
 }
 
 var (
@@ -150,7 +193,7 @@ func Parse(url string) (*Curl, error) {
 				if idx+1 >= len(curlCmd) {
 					return nil, ErrCurlSyntax
 				}
-				curl.Body = curlCmd[idx+1]
+				curl.Body = Body(curlCmd[idx+1])
 				idx += 1
 			case OptionShortForm, OptionForm:
 				if idx+1 >= len(curlCmd) {

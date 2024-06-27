@@ -29,5 +29,14 @@ func TestParse(t *testing.T) {
 		} else {
 			t.Logf("curl: %+v", curl)
 		}
+
+		body := map[string]interface{}{}
+
+		err = curl.Body.UnmarshalParse(&body)
+		if err != nil {
+			t.Errorf("body.UnmarshalParse: %v", err)
+		} else {
+			t.Logf("body: %+v", body)
+		}
 	}
 }
